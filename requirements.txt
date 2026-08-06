@@ -1,3 +1,4 @@
 pytest-playwright
 pytest-env
 allure-pytest
+pytest_check
