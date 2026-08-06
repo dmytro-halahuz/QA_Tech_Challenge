@@ -1,7 +1,5 @@
 import os
-
 import allure
-
 
 def get_env_var(name):
     var = os.environ[name]
