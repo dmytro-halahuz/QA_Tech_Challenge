@@ -7,12 +7,15 @@
 # ./.venv/bin/playwright install
 # ./.venv/bin/playwright install-deps
 
-# Load secrets
-set -a
-source ./env/secrets/prod.env
+# Load secrets for a different env(prod is default)
+#set -a
+#source ./env/secrets/prod.env
 
 # Execute tests
-./.venv/bin/pytest --envfile ./env/prod.env
+./.venv/bin/pytest
+
+# Execute with a different .env file (prod is default)
+#./.venv/bin/pytest --envfile ./env/prod.env
 
 #Generate report and open in browser
 allure awesome allure-results --single-file

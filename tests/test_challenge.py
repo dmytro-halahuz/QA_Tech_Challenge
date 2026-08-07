@@ -94,7 +94,7 @@ def test_get_pull_requests(page):
 
     csv_file.attach_to_report()
 
-@allure.title("Get a list of pull requests")
+@allure.title("Get a list of pull requests(GitHub API)")
 def test_get_pull_requests_api():
     owner = "appwrite"
     repo = "appwrite"
