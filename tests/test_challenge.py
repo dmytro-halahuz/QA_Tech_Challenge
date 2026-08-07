@@ -1,11 +1,11 @@
 import allure
-import pytest
+import requests
 
-from models.pages import HomePage, AboutPage, LoginPage
+from models.pages import HomePage, AboutPage, LoginPage, GithubPRsPage
 import pytest_check as check
 from urllib.parse import urljoin
 
-from utils import get_env_var
+from utils import get_env_var, TempCSVFile
 
 @allure.title("Verify Home page has no console errors")
 def test_check_console_on_home(page):
@@ -52,3 +52,87 @@ def test_login(page):
     login_page = LoginPage(page)
     login_page.navigate()
     login_page.login(username, password).verify_account(username)
+
+@allure.title("Get a list of pull requests")
+def test_get_pull_requests():
+    owner = "appwrite"
+    repo = "appwrite"
+
+    csv_file = TempCSVFile('Open Pull Requests')
+    csv_file.writerow(["Name", "Created Date", "Author"])
+
+    page = 1
+
+    while True:
+        pull_requests = get_pull_requests(owner, repo, page)
+
+        if not pull_requests:
+            break
+
+        for pr in pull_requests:
+            csv_file.writerow([pr['title'], pr['created_at'], pr['user']['login']])
+
+        page += 1
+
+    csv_file.attach_to_report()
+
+@allure.title("Get a list of pull requests")
+def test_get_pull_requests(page):
+    owner = "appwrite"
+    repo = "appwrite"
+
+    csv_file = TempCSVFile('Open Pull Requests')
+    csv_file.writerow(["Name", "Created Date", "Author"])
+
+    pr_page = GithubPRsPage(page, owner, repo)
+    pr_page.navigate()
+
+    while True:
+        csv_file.writerows(pr_page.get_prs())
+        if not pr_page.next_page():
+            break
+
+    csv_file.attach_to_report()
+
+@allure.title("Get a list of pull requests")
+def test_get_pull_requests_api():
+    owner = "appwrite"
+    repo = "appwrite"
+
+    csv_file = TempCSVFile('Open Pull Requests')
+    csv_file.writerow(["Name", "Created Date", "Author"])
+
+    page = 1
+
+    while True:
+        pull_requests = get_pull_requests(owner, repo, page)
+
+        if not pull_requests:
+            break
+
+        for pr in pull_requests:
+            csv_file.writerow([pr['title'], pr['created_at'], pr['user']['login']])
+
+        page += 1
+
+    csv_file.attach_to_report()
+
+def get_pull_requests(owner, repo, page, state=open, per_page=100, ):
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+    token = get_env_var('GITHUB_TOKEN')
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"token {token}",
+    }
+
+    params = {
+        "state": state,
+        "per_page": per_page,
+        "page": page
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    return response.json()
