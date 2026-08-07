@@ -1,4 +1,5 @@
 import allure
+import pytest
 import requests
 
 from models.pages import HomePage, AboutPage, LoginPage, GithubPRsPage
@@ -16,6 +17,7 @@ def test_check_console_on_home(page):
     with allure.step(f"Verify no console errors are present"):
         assert home_page.console_errors == []
 
+@pytest.mark.skip(reason="enable this test to see the intentional error")
 @allure.title("Verify About page has no console errors")
 def test_check_console_on_about(page):
     about_page = AboutPage(page)
@@ -94,6 +96,7 @@ def test_get_pull_requests(page):
 
     csv_file.attach_to_report()
 
+@pytest.mark.skip(reason="alternative solution that's much faster, but requires a GitHub token")
 @allure.title("Get a list of pull requests(GitHub API)")
 def test_get_pull_requests_api():
     owner = "appwrite"
